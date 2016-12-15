@@ -1,0 +1,79 @@
+{
+  "type": "index_hadoop",
+  "spec": {
+    "ioConfig": {
+      "type": "hadoop",
+      "inputSpec": {
+        "type": "static",
+        "inputFormat": "io.druid.data.input.parquet.DruidParquetInputFormat",
+        "paths": "???????????"
+      },
+      "metadataUpdateSpec": {
+        "type": "postgresql",
+        "connectURI": "jdbc:postgresql://localhost/druid",
+        "user" : "druid",
+        "password" : "asdf",
+        "segmentTable": "druid_segments"
+      },
+      "segmentOutputPath": "/tmp/segments"
+    },
+    "dataSchema": {
+      "dataSource": "base",
+      "parser": {
+        "type": "parquet",
+        "parseSpec": {
+          "format": "timeAndDims",
+          "timestampSpec": {
+            "column": "timestamp",
+            "format": "auto"
+          },
+          "dimensionsSpec": {
+            "dimensions": [
+              "geo",
+              "cid",
+              "dvc"
+            ],
+            "dimensionExclusions": [],
+            "spatialDimensions": []
+          }
+        }
+      },
+      "metricsSpec" : [ {
+        "type" : "count",
+        "name" : "count"
+      }, {
+        "type" : "hyperUnique",
+        "name" : "gwid",
+        "fieldName" : "gwid"
+      }, {
+        "type" : "hyperUnique",
+        "name" : "mid",
+        "fieldName" : "mid"
+      }, {
+        "type" : "hyperUnique",
+        "name" : "diid",
+        "fieldName" : "diid"
+      }
+      ],
+      "granularitySpec" : {
+        "type" : "uniform",
+        "segmentGranularity" : "HOUR",
+        "queryGranularity" : "HOUR",
+        "intervals" : [ "2016-01-01T01:00:00.000Z/2016-01-01T02:00:00.000Z" ]
+      }
+    },
+    "tuningConfig": {
+      "type": "hadoop",
+      "workingPath": "tmp/working_path",
+      "partitionsSpec": {
+        "targetPartitionSize": 5000000
+      },
+      "jobProperties" : {
+        "mapreduce.map.java.opts": "-server -Duser.timezone=UTC -Dfile.encoding=UTF-8 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
+        "mapreduce.reduce.java.opts": "-server -Duser.timezone=UTC -Dfile.encoding=UTF-8 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
+        "mapred.child.java.opts": "-server -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
+      },
+      "leaveIntermediate": true
+    }
+  }
+}
